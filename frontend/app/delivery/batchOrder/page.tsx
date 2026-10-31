@@ -8,7 +8,9 @@ import {
     getAllOrders,
     calculateMinimizeLatenessAPI,
     compareSchedulingStrategiesAPI,
-    calculateChainRouteAPI
+    calculateChainRouteAPI,
+    evaluateManualRouteAPI,
+    type ManualRouteEvaluation
 } from "../../../api/api";
 import {
     geocodeCEP,
@@ -34,7 +36,9 @@ import {
     FiPackage,
     FiEdit2,
     FiCheck,
-    FiX
+    FiX,
+    FiArrowUp,
+    FiArrowDown
 } from "react-icons/fi";
 import { FaWalking, FaBicycle, FaMotorcycle, FaCar } from "react-icons/fa";
 import { toast } from "react-toastify";
@@ -77,6 +81,9 @@ export default function DeliveryCalendarPage() {
 
     // Estados do Cronograma e Rota em Cadeia
     const [scheduleResult, setScheduleResult] = useState<any>(null);
+    const [idealSchedule, setIdealSchedule] = useState<any>(null);
+    const [manualEvaluation, setManualEvaluation] = useState<ManualRouteEvaluation | null>(null);
+    const [routeSettings, setRouteSettings] = useState({ algorithm, speedKmh: 40 });
     const [comparisonResult, setComparisonResult] = useState<any>(null);
     const [showComparison, setShowComparison] = useState(false);
     const [graphData, setGraphData] = useState<OSMGraph | null>(null);
@@ -287,7 +294,6 @@ export default function DeliveryCalendarPage() {
 
             // Constrói o grafo viário cobrindo todos os pontos
             const graph = await buildMultiStopRoadGraph(allPointsForGraph);
-            setGraphData(graph);
 
             let segmentCostsMinutes: number[] = [];
             let fullContinuousCoords: [number, number][] = [];
@@ -350,7 +356,19 @@ export default function DeliveryCalendarPage() {
             });
 
             const finalSchedule = refinedSchedule || scheduleData;
+            const evaluation = await evaluateManualRouteAPI({
+                orders: finalSchedule.schedule.map((item: any) => item.order),
+                manualOrderIds: finalSchedule.schedule.map((item: any) => item.orderId),
+                startTime: localStartISO,
+                segmentDurationsMinutes: segmentCostsMinutes,
+                serviceTimeMinutes: serviceTimeMins
+            });
+            setIdealSchedule(finalSchedule);
+            setManualEvaluation(evaluation);
+            setRouteSettings({ algorithm, speedKmh });
+            setActiveStopIndex(null);
             setScheduleResult(finalSchedule);
+            setGraphData(graph);
             setChainPathNodeIds(fullPathNodes);
             setContinuousCoordinates(fullContinuousCoords);
             setVisitedEdges(chainVisited);
@@ -420,6 +438,85 @@ export default function DeliveryCalendarPage() {
             setProcessingSchedule(false);
             setStatusMessage("");
         }
+    };
+
+    const handleManualReorder = async (orderIds: number[]) => {
+        if (!idealSchedule || processingSchedule) return;
+        setProcessingSchedule(true);
+        setStatusMessage("Avaliando fila manual e recalculando a rota...");
+        try {
+            const orderedStops = orderIds.map(orderId => {
+                const stop = mapStops.find(item => item.orderId === orderId);
+                if (!stop) throw new Error("Pedido não encontrado na rota atual.");
+                return stop;
+            });
+            const origin = mapStops[0];
+            const points = [origin, ...orderedStops];
+            let coordinates: [number, number][] = points.map(point => [point.lat, point.lon]);
+            let path: number[] = [];
+            let edges: { u: number; v: number }[] = [];
+            let durations = orderedStops.map((stop, index) => {
+                const previous = points[index];
+                const distance = calculateDistance(previous.lat, previous.lon, stop.lat, stop.lon);
+                return Math.max(5, Math.round((distance / 1000 * 1.3 / routeSettings.speedKmh) * 60));
+            });
+
+            if (graphData) {
+                const stopNodeIds = points.map(point => findNearestNode(graphData, point.lat, point.lon));
+                if (stopNodeIds.some(nodeId => nodeId === null)) {
+                    throw new Error("Não foi possível localizar uma parada no mapa.");
+                }
+                const chain = await calculateChainRouteAPI({
+                    graph: graphData,
+                    stopNodeIds: stopNodeIds as number[],
+                    ...routeSettings
+                });
+                if (!chain || chain.segments?.length !== orderIds.length || !chain.fullPath?.length) {
+                    throw new Error("Não foi possível recalcular a rota manual.");
+                }
+                durations = chain.segments.map((segment: { durationMinutes: number }) => segment.durationMinutes);
+                path = chain.fullPath;
+                edges = chain.visitedEdges || [];
+                coordinates = path.map(nodeId => [graphData.nodes[nodeId].lat, graphData.nodes[nodeId].lon]);
+            }
+
+            const evaluation = await evaluateManualRouteAPI({
+                orders: idealSchedule.schedule.map((item: any) => item.order),
+                manualOrderIds: orderIds,
+                startTime: idealSchedule.startTime,
+                segmentDurationsMinutes: durations,
+                serviceTimeMinutes: idealSchedule.schedule[0]?.serviceTimeMinutes ?? 5
+            });
+            const manualSchedule = evaluation.scheduleResult;
+            setManualEvaluation(evaluation);
+            setScheduleResult(manualSchedule);
+            setMapStops([origin, ...manualSchedule.schedule.map((item: any, index: number) => ({
+                ...orderedStops[index],
+                stopIndex: index + 1,
+                label: `Parada #${index + 1}`,
+                arrivalFormatted: item.arrivalFormatted,
+                deadlineFormatted: item.deadlineFormatted,
+                latenessMinutes: item.latenessMinutes,
+                isDelayed: item.isDelayed
+            }))]);
+            setChainPathNodeIds(path);
+            setContinuousCoordinates(coordinates);
+            setVisitedEdges(edges);
+            setActiveStopIndex(null);
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Erro ao avaliar a fila manual.");
+        } finally {
+            setProcessingSchedule(false);
+            setStatusMessage("");
+        }
+    };
+
+    const moveOrder = (index: number, direction: -1 | 1) => {
+        const orderIds: number[] = scheduleResult.schedule.map((item: any) => item.orderId);
+        const destination = index + direction;
+        if (destination < 0 || destination >= orderIds.length) return;
+        [orderIds[index], orderIds[destination]] = [orderIds[destination], orderIds[index]];
+        void handleManualReorder(orderIds);
     };
 
     if (loading) {
@@ -878,6 +975,50 @@ export default function DeliveryCalendarPage() {
                 {/* COLUNA DIREITA (7 COLUNAS): MAPA CONTÍNUO & TIMELINE      */}
                 {/* ========================================================= */}
                 <div className="lg:col-span-7 flex flex-col gap-6">
+
+                    {manualEvaluation && scheduleResult && (
+                        <section aria-label="Avaliador de rota manual" aria-busy={processingSchedule} className="border-y border-black/10 py-5">
+                            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                                <h2 className="text-sm font-black uppercase flex items-center gap-2">
+                                    <FiEdit2 className="text-[#6032F6]" /> Fila Manual
+                                </h2>
+                                <button
+                                    type="button"
+                                    onClick={() => void handleManualReorder(manualEvaluation.idealOrderIds)}
+                                    disabled={processingSchedule || manualEvaluation.inversions === 0}
+                                    className="inline-flex items-center gap-2 text-xs font-bold text-[#6032F6] disabled:opacity-40"
+                                >
+                                    <FiRefreshCw /> Restaurar Fila Ideal
+                                </button>
+                            </div>
+                            <div role="status" aria-live="polite" className="flex flex-wrap items-baseline gap-x-5 gap-y-2 mb-4">
+                                <span className="text-sm font-bold">Score de Eficiência: {manualEvaluation.efficiencyScore}%</span>
+                                <span className="text-xs font-semibold">{manualEvaluation.inversions} / {manualEvaluation.maxInversions} inversões</span>
+                                <span className={`text-xs font-black ${manualEvaluation.riskLevel === "perfect" ? "text-emerald-700" : manualEvaluation.riskLevel === "high" ? "text-rose-700" : "text-amber-700"}`}>
+                                    {{ perfect: "Rota Perfeita", low: "Baixo Risco de Atraso", moderate: "Risco Moderado de Atraso", high: "Alto Risco de Atraso" }[manualEvaluation.riskLevel]}
+                                </span>
+                            </div>
+                            <ol className="divide-y divide-black/10">
+                                {scheduleResult.schedule.map((item: any, index: number) => (
+                                    <li key={item.orderId} className="flex items-center gap-3 py-3">
+                                        <span className="w-6 shrink-0 text-center text-sm font-black">{index + 1}</span>
+                                        <div className="min-w-0 flex-1">
+                                            <p className="text-xs font-bold break-words">Pedido #{item.orderId} · {item.customerName}</p>
+                                            <p className="text-[11px] text-black/60">Prazo: {item.deadlineFormatted}</p>
+                                        </div>
+                                        <div className="flex shrink-0 gap-1">
+                                            <button type="button" title={`Subir pedido #${item.orderId}`} aria-label={`Subir pedido #${item.orderId}`} disabled={processingSchedule || index === 0} onClick={() => moveOrder(index, -1)} className="h-9 w-9 flex items-center justify-center rounded border border-black/10 hover:bg-white disabled:opacity-30">
+                                                <FiArrowUp />
+                                            </button>
+                                            <button type="button" title={`Descer pedido #${item.orderId}`} aria-label={`Descer pedido #${item.orderId}`} disabled={processingSchedule || index === scheduleResult.schedule.length - 1} onClick={() => moveOrder(index, 1)} className="h-9 w-9 flex items-center justify-center rounded border border-black/10 hover:bg-white disabled:opacity-30">
+                                                <FiArrowDown />
+                                            </button>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ol>
+                        </section>
+                    )}
 
                     {/* Bloco do Mapa com Rota Contínua em Cadeia */}
                     <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-black/5 flex flex-col">
