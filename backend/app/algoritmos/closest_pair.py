@@ -1,5 +1,6 @@
 import math
 from typing import List, Dict, Any, Tuple, Optional
+from typing import Tuple, Optional
 
 def euclidean_distance(p1: Dict[str, Any], p2: Dict[str, Any]) -> float:
     dx = p1["x"] - p2["x"]
@@ -42,3 +43,37 @@ def merge_by_y(
         j += 1
 
     return merged
+
+
+def sort_and_closest_pair(
+    points_sorted_by_x: List[Dict[str, Any]],
+    division_lines: List[float],
+    checked_pairs: List[Tuple[Any, Any]],
+) -> Tuple[List[Dict[str, Any]], float, Optional[Tuple[Dict[str, Any], Dict[str, Any]]]]:
+    
+    n = len(points_sorted_by_x)
+
+    if n <= 3:
+        min_dist = float("inf")
+        best_pair = None
+        for i in range(n):
+            for j in range(i + 1, n):
+                p1, p2 = points_sorted_by_x[i], points_sorted_by_x[j]
+                d = euclidean_distance(p1, p2)
+                checked_pairs.append((p1["id"], p2["id"]))
+                
+                if d < min_dist:
+                    min_dist = d
+                    best_pair = (p1, p2)
+                    
+        points_sorted_by_y = sorted(points_sorted_by_x, key=lambda p: p["y"])
+        return points_sorted_by_y, min_dist, best_pair
+
+    mid = n // 2
+    left_half = points_sorted_by_x[:mid]
+    right_half = points_sorted_by_x[mid:]
+    
+    line_l_x = (left_half[-1]["x"] + right_half[0]["x"]) / 2.0
+    division_lines.append(line_l_x)
+
+    return points_sorted_by_x, float("inf"), None
