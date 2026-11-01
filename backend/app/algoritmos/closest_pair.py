@@ -1,6 +1,5 @@
 import math
 from typing import List, Dict, Any, Tuple, Optional
-from typing import Tuple, Optional
 
 def euclidean_distance(p1: Dict[str, Any], p2: Dict[str, Any]) -> float:
     dx = p1["x"] - p2["x"]
@@ -44,7 +43,6 @@ def merge_by_y(
 
     return merged
 
-
 def sort_and_closest_pair(
     points_sorted_by_x: List[Dict[str, Any]],
     division_lines: List[float],
@@ -76,4 +74,18 @@ def sort_and_closest_pair(
     line_l_x = (left_half[-1]["x"] + right_half[0]["x"]) / 2.0
     division_lines.append(line_l_x)
 
-    return points_sorted_by_x, float("inf"), None
+    left_by_y, delta1, pair1 = sort_and_closest_pair(
+        left_half, division_lines, checked_pairs
+    )
+    right_by_y, delta2, pair2 = sort_and_closest_pair(
+        right_half, division_lines, checked_pairs
+    )
+
+    if delta1 <= delta2:
+        delta = delta1
+        best_pair = pair1
+    else:
+        delta = delta2
+        best_pair = pair2
+
+    return points_sorted_by_x, delta, best_pair
