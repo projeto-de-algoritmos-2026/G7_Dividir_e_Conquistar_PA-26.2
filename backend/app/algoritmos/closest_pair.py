@@ -88,4 +88,19 @@ def sort_and_closest_pair(
         delta = delta2
         best_pair = pair2
 
-    return points_sorted_by_x, delta, best_pair
+    all_points_by_y = merge_by_y(left_by_y, right_by_y)
+
+    strip = [p for p in all_points_by_y if abs(p["x"] - line_l_x) < delta]
+
+    strip_len = len(strip)
+    for i in range(strip_len):
+        for j in range(i + 1, min(i + 8, strip_len)):
+            p1, p2 = strip[i], strip[j]
+            d = euclidean_distance(p1, p2)
+            checked_pairs.append((p1["id"], p2["id"]))
+            
+            if d < delta:
+                delta = d
+                best_pair = (p1, p2)
+
+    return all_points_by_y, delta, best_pair
