@@ -87,6 +87,51 @@ export default function DeliveryCalendarPage() {
     const [activeStopIndex, setActiveStopIndex] = useState<number | null>(null);
     const [statusMessage, setStatusMessage] = useState<string>("");
 
+    const [findingTwins, setFindingTwins] = useState(false);
+    const [closestPairCoords, setClosestPairCoords] = useState<[number, number][]>([]);
+
+    const handleFindTwins = async () => {
+        setFindingTwins(true);
+        setStatusMessage("Procurando o par de entregas mais próximo no mapa...");
+        
+        try {
+            const geocodedOrders = [];
+            for (const order of allOrders) {
+                let coord = KNOWN_COORDS[order.cep];
+                if (!coord) {
+                    const geo = await geocodeCEP(order.cep);
+                    coord = geo ? { lat: geo.lat, lon: geo.lon, address: order.address } 
+                                : { lat: -15.7950, lon: -47.8900, address: order.address };
+                }
+                geocodedOrders.push({ ...order, lat: coord.lat, lon: coord.lon });
+            }
+
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/api/routes/closest-pair` : "http://localhost:8000/api/routes/closest-pair";
+            const res = await fetch(apiUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ orders: geocodedOrders })
+            });
+
+            if (!res.ok) throw new Error("Falha ao calcular entregas gêmeas");
+            const data = await res.json();
+
+            setClosestPairCoords([
+                [data.point1.lat, data.point1.lon],
+                [data.point2.lat, data.point2.lon]
+            ]);
+
+            setSelectedOrderIds([data.point1.id, data.point2.id]);
+
+            toast.success(`Entregas Gêmeas encontradas! Pedidos #${data.point1.id} e #${data.point2.id} estão a ${data.distance_meters}m de distância.`);
+        } catch (err: any) {
+            toast.error(err.message || "Erro ao buscar entregas gêmeas.");
+        } finally {
+            setFindingTwins(false);
+            setStatusMessage("");
+        }
+    };
+
     // Carregar pedidos ao montar o componente
     useEffect(() => {
         async function loadInitialOrders() {
@@ -668,6 +713,22 @@ export default function DeliveryCalendarPage() {
                                 </p>
                             </div>
                             <div className="flex items-center gap-3">
+                                <button
+                                    onClick={handleFindTwins}
+                                    disabled={findingTwins || allOrders.length < 2}
+                                    className="text-[10px] font-black uppercase tracking-wider text-amber-600 hover:text-amber-700 hover:underline cursor-pointer flex items-center gap-1 transition-colors disabled:opacity-50"
+                                    title="Usa Dividir e Conquistar para achar os 2 pedidos mais colados"
+                                >
+                                    {findingTwins ? (
+                                        <div className="animate-spin h-3 w-3 border-2 border-amber-600 border-t-transparent rounded-full" />
+                                    ) : (
+                                        <FiZap size={12} />
+                                    )}
+                                    Encontrar Gêmeas
+                                </button>
+                                
+                                <div className="w-px h-3 bg-black/10 mx-1"></div>
+
                                 {isFilteredBySelection && fullOrdersList.length > allOrders.length && (
                                     <button
                                         onClick={() => {
@@ -931,7 +992,8 @@ export default function DeliveryCalendarPage() {
                                 visitedEdges={visitedEdges}
                                 activeStopIndex={activeStopIndex}
                                 onSelectStop={(idx) => setActiveStopIndex(idx)}
-                            />
+                                closestPairCoords={closestPairCoords}
+                            />  
                         </div>
                     </div>
 
