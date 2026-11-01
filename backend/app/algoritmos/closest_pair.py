@@ -104,3 +104,42 @@ def sort_and_closest_pair(
                 best_pair = (p1, p2)
 
     return all_points_by_y, delta, best_pair
+
+def find_closest_pair(points: List[Dict[str, Any]]) -> Dict[str, Any]:
+    if len(points) < 2:
+        raise ValueError("São necessários pelo menos 2 pontos para encontrar o par mais próximo.")
+
+    normalized_points = []
+    for p in points:
+        lat = float(p.get("lat") if p.get("lat") is not None else p.get("latitude"))
+        lon = float(p.get("lon") if p.get("lon") is not None else p.get("longitude"))
+        normalized_points.append({
+            **p,
+            "lat": lat,
+            "lon": lon,
+            "x": lon,
+            "y": lat,
+        })
+
+    points_sorted_by_x = sorted(normalized_points, key=lambda p: p["x"])
+
+    division_lines: List[float] = []
+    checked_pairs: List[Tuple[Any, Any]] = []
+
+    _, delta, best_pair = sort_and_closest_pair(
+        points_sorted_by_x, division_lines, checked_pairs
+    )
+
+    p1, p2 = best_pair
+    distance_m = haversine_meters(p1["lat"], p1["lon"], p2["lat"], p2["lon"])
+
+    return {
+        "point1": p1,
+        "point2": p2,
+        "euclidean_distance_deg": delta,
+        "distance_meters": round(distance_m, 2),
+        "distance_km": round(distance_m / 1000.0, 3),
+        "division_lines_lon": division_lines,
+        "checked_pairs": checked_pairs,
+        "total_points": len(normalized_points),
+    }
