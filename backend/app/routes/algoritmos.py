@@ -6,6 +6,9 @@ from app.algoritmos.dijkstra import run_dijkstra
 from app.algoritmos.minimize_lateness import run_minimize_lateness, compare_scheduling_strategies
 from app.algoritmos.chain_route import calculate_chain_route
 from app.algoritmos.selecting_breakpoints import run_selecting_breakpoints
+from app.algoritmos.count_inversions import evaluate_manual_route
+from app.algoritmos.minimize_lateness import calculate_schedule_lateness, parse_iso_datetime
+from math import isfinite
 
 router = APIRouter(
     prefix="/api",
@@ -107,6 +110,35 @@ async def schedule_minimize_lateness(payload: MinimizeLatenessRequest):
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao processar Minimize Lateness: {str(e)}")
+
+
+class ManualRouteRequest(BaseModel):
+    orders: List[OrderScheduleInput]
+    manualOrderIds: List[int]
+    startTime: str
+    segmentDurationsMinutes: List[float]
+    serviceTimeMinutes: float = Field(default=5.0, ge=0, allow_inf_nan=False)
+
+
+@router.post("/schedule/count-inversions")
+async def evaluate_manual_schedule(payload: ManualRouteRequest):
+    orders = [order.model_dump(exclude_none=True) for order in payload.orders]
+    try:
+        evaluation = evaluate_manual_route(orders, payload.manualOrderIds)
+        if (len(payload.segmentDurationsMinutes) != len(orders)
+                or any(not isfinite(duration) or duration < 0 for duration in payload.segmentDurationsMinutes)):
+            raise ValueError("Informe uma duracao de viagem valida para cada pedido.")
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+    orders_by_id = {order["id"]: order for order in orders}
+    schedule = calculate_schedule_lateness(
+        ordered_orders=[orders_by_id[order_id] for order_id in payload.manualOrderIds],
+        start_time=parse_iso_datetime(payload.startTime),
+        segment_durations_minutes=payload.segmentDurationsMinutes,
+        service_time_minutes=payload.serviceTimeMinutes,
+    )
+    return {**evaluation, "scheduleResult": schedule}
 
 
 class CompareStrategiesRequest(BaseModel):

@@ -152,6 +152,33 @@ export async function calculateMinimizeLatenessAPI(payload: {
     }
 }
 
+export interface ManualRouteEvaluation {
+    idealOrderIds: number[];
+    manualOrderIds: number[];
+    inversions: number;
+    maxInversions: number;
+    efficiencyScore: number;
+    riskLevel: "perfect" | "low" | "moderate" | "high";
+}
+
+export async function evaluateManualRouteAPI(payload: {
+    orders: { id: number; deadline?: string }[];
+    manualOrderIds: number[];
+    startTime: string;
+    segmentDurationsMinutes: number[];
+    serviceTimeMinutes: number;
+}) {
+    const res = await fetch(`${BASE_URL}/api/schedule/count-inversions`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload)
+    });
+    if (!res.ok) {
+        throw new Error("Não foi possível avaliar a fila manual. Tente novamente.");
+    }
+    return await res.json();
+}
+
 export async function compareSchedulingStrategiesAPI(payload: {
     orders: any[];
     startTime?: string;
