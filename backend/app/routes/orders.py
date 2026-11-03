@@ -16,7 +16,7 @@ class OrderItemInput(BaseModel):
 class CheckoutPayload(BaseModel):
     items: List[OrderItemInput]
     cep: str
-    user_id: str | None = None
+    user_id: Optional[str] = None
     deadline: Optional[str] = None
 
 # Pedidos de demonstração resilientes com prazos realistas

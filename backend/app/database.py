@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 from app.config import SUPABASE_URL, SUPABASE_KEY, DATABASE_URL
 from app.generated.prisma import Prisma
 from supabase import create_client, Client
@@ -9,7 +10,7 @@ logger = logging.getLogger("uvicorn")
 db = Prisma(auto_register=True)
 
 
-_supabase_client: Client | None = None
+_supabase_client: Optional[Client] = None
 
 def get_prisma_client() -> Prisma:
     """Retorna a instância do cliente Prisma."""
@@ -36,6 +37,7 @@ async def connect_db():
             await asyncio.wait_for(db.connect(), timeout=3.0)
             logger.info("✅ [Prisma] Conectado ao banco de dados Supabase PostgreSQL com sucesso!")
     except Exception as e:
+        await disconnect_db()
         logger.warning(f"⚠️ [Prisma] Banco de dados remoto indisponível ({e}). Executando servidor em modo de demonstração resiliente.")
 
 async def disconnect_db():
@@ -45,4 +47,4 @@ async def disconnect_db():
             await db.disconnect()
             logger.info("🔌 [Prisma] Desconectado do banco de dados.")
     except Exception:
-        pass
+        pass

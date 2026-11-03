@@ -1,4 +1,5 @@
 from fastapi import APIRouter, status
+from app.database import db
 from app.schemas.user import UserRegisterRequest, UserLoginRequest, AuthResponse
 from app.services.auth_service import AuthService
 
@@ -33,10 +34,12 @@ async def login(payload: UserLoginRequest) -> AuthResponse:
 )
 async def health_check():
     configured = AuthService._is_configured()
+    connected = db.is_connected()
     return {
         "status": "online",
         "orm": "Prisma Client Python",
         "database": "Supabase PostgreSQL",
         "database_configured": configured,
-        "mode": "production" if configured else "demo_mock"
+        "database_connected": connected,
+        "mode": "production" if configured and connected else "demo_mock"
     }

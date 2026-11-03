@@ -66,6 +66,7 @@ export default function Home() {
               alt="STOKKERS Hero"
               width={600}
               height={400}
+              style={{ width: "auto", height: "auto" }}
               className="object-cover drop-shadow-lg scale-100 md:scale-65 translate-y-12 md:translate-y-35"
               priority
             />
