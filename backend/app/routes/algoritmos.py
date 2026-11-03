@@ -9,6 +9,7 @@ from app.algoritmos.selecting_breakpoints import run_selecting_breakpoints
 from app.algoritmos.count_inversions import evaluate_manual_route
 from app.algoritmos.minimize_lateness import calculate_schedule_lateness, parse_iso_datetime
 from math import isfinite
+from app.algoritmos.closest_pair import find_closest_pair
 
 router = APIRouter(
     prefix="/api",
@@ -248,3 +249,18 @@ async def select_route_breakpoints(payload: SelectingBreakpointsRequest):
     print("-------------------------------------\n")
 
     return result
+
+# PAR DE PONTOS MAIS PRÓXIMOS
+
+class ClosestPairRequest(BaseModel):
+    orders: List[Dict[str, Any]]
+
+@router.post("/routes/closest-pair")
+async def get_closest_pair(payload: ClosestPairRequest):
+    try:
+        result = find_closest_pair(payload.orders)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao calcular par mais próximo: {str(e)}")

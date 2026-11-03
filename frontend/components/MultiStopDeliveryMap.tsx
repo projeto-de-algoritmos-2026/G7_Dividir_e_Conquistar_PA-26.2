@@ -28,6 +28,7 @@ interface MultiStopDeliveryMapProps {
     visitedEdges?: { u: number; v: number }[];
     activeStopIndex?: number | null;
     onSelectStop?: (stopIndex: number) => void;
+    closestPairCoords?: [number, number][];
 }
 
 export default function MultiStopDeliveryMap({
@@ -37,7 +38,8 @@ export default function MultiStopDeliveryMap({
     continuousCoordinates,
     visitedEdges,
     activeStopIndex,
-    onSelectStop
+    onSelectStop,
+    closestPairCoords
 }: MultiStopDeliveryMapProps) {
     const mapRef = useRef<HTMLDivElement>(null);
     const leafletMap = useRef<L.Map | null>(null);
@@ -80,11 +82,42 @@ export default function MultiStopDeliveryMap({
         });
         markersRef.current = {};
 
-        if (!stops || stops.length === 0) return;
+        const hasStops = stops && stops.length > 0;
+        const hasClosestPair = closestPairCoords && closestPairCoords.length === 2;
+
+        if (!hasStops && !hasClosestPair) return;
 
         const bounds = L.latLngBounds([]);
 
-        // Cria marcadores numerados personalizados para cada parada
+        // 1. Se houver o Par Mais Próximo (Entregas Gêmeas), desenha a linha laranja tracejada
+        if (hasClosestPair) {
+            const twinLine = L.polyline(closestPairCoords, {
+                color: '#F59E0B',
+                weight: 5,
+                dashArray: '10, 10',
+                opacity: 1
+            }).addTo(map);
+
+            closestPairCoords.forEach((coord, idx) => {
+                bounds.extend(coord);
+                L.circleMarker(coord, {
+                    radius: 10,
+                    fillColor: '#F59E0B',
+                    color: '#FFFFFF',
+                    weight: 3,
+                    fillOpacity: 0.95
+                })
+                .bindPopup(`<strong>⚡ Entrega Gêmea #${idx + 1}</strong><br/>Par mais próximo encontrado!`)
+                .addTo(map);
+            });
+
+            if (!hasStops) {
+                map.fitBounds(twinLine.getBounds(), { padding: [80, 80], maxZoom: 15 });
+                return;
+            }
+        }
+
+        // 2. Cria marcadores numerados personalizados para cada parada
         stops.forEach((stop) => {
             bounds.extend([stop.lat, stop.lon]);
 
@@ -156,7 +189,7 @@ export default function MultiStopDeliveryMap({
             markersRef.current[stop.stopIndex] = marker;
         });
 
-        // 2. Extrai coordenadas da Rota Contínua
+        // 3. Extrai coordenadas da Rota Contínua
         let latlngs: [number, number][] = [];
 
         if (continuousCoordinates && continuousCoordinates.length > 0) {
@@ -169,13 +202,11 @@ export default function MultiStopDeliveryMap({
                 })
                 .filter((coord): coord is [number, number] => coord !== null);
         } else if (stops.length > 1) {
-            // Traço direto conectando sequencialmente se ainda não gerou nós de grafo
             latlngs = stops.map(s => [s.lat, s.lon]);
         }
 
         // Desenha a Rota Contínua ligando a cadeia de entregas
         if (latlngs.length > 0) {
-            // Linha de sombra / contorno para visual premium
             L.polyline(latlngs, {
                 color: '#17181A',
                 weight: 8,
@@ -184,7 +215,6 @@ export default function MultiStopDeliveryMap({
                 lineJoin: 'round'
             }).addTo(map);
 
-            // Linha principal da rota com cor vibrante
             const routeLine = L.polyline(latlngs, {
                 color: '#6032F6',
                 weight: 5,
@@ -195,7 +225,6 @@ export default function MultiStopDeliveryMap({
 
             polylineRef.current = routeLine;
 
-            // Ajusta o zoom do mapa para enquadrar a rota inteira
             map.fitBounds(routeLine.getBounds(), { padding: [60, 60] });
         } else if (bounds.isValid()) {
             map.fitBounds(bounds, { padding: [50, 50] });
@@ -224,7 +253,7 @@ export default function MultiStopDeliveryMap({
             }
         }
 
-    }, [stops, graph, continuousPathNodeIds, continuousCoordinates, visitedEdges]);
+    }, [stops, graph, continuousPathNodeIds, continuousCoordinates, visitedEdges, closestPairCoords]);
 
     // Efeito para focar quando o usuário clica em uma parada na timeline
     useEffect(() => {
