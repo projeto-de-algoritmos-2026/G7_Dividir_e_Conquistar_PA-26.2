@@ -1,7 +1,7 @@
-# Delivery Routing & Scheduling com Greed - Stock.io
+# Delivery Routing & Scheduling com Dividir e Conquistar - Stock.io
 
-Número da Lista: 2<br>
-Conteúdo da Disciplina: Greed (Algoritmos Gulosos)<br>
+Número da Lista: 3<br>
+Conteúdo da Disciplina: Dividir e Conquistar (D&C)<br>
 
 ## Alunos
 
@@ -12,14 +12,17 @@ Conteúdo da Disciplina: Greed (Algoritmos Gulosos)<br>
 
 ## Sobre
 
-Este projeto foi desenvolvido para a disciplina de **Projeto de Algoritmos (PA) - 2026.2**, com foco na aplicação prática de **Algoritmos Ambiciosos (Greedy Algorithms)** em um cenário de logística e entregas.
+Este projeto foi desenvolvido para a disciplina de **Projeto de Algoritmos (PA) - 2026.2**, com foco na aplicação prática do paradigma de **Dividir e Conquistar (Divide and Conquer)** em um cenário real de logística, planejamento e roteamento de entregas.
 
-A aplicação utiliza o ecossistema da plataforma **stock.io**, desenvolvido anteriormente, para representar problemas reais de roteamento e planejamento de entregas. Nesta segunda entrega foram implementadas duas aplicações de algoritmos gulosos:
+A aplicação estende o ecossistema da plataforma **stock.io**, integrando dois dos algoritmos mais consagrados de Dividir e Conquistar para resolver problemas reais de despacho:
 
-- **Scheduling to Minimize Lateness**, utilizado para organizar um lote de pedidos de acordo com seus prazos de entrega;
-- **Selecting Breakpoints**, adaptado como **Algoritmo do Caminhoneiro**, utilizado para determinar os pontos de recarga necessários durante uma rota individual de acordo com a autonomia do veículo.
+1. **Counting Inversions (Contagem de Inversões):** Adaptado como **Avaliador de Fila Manual / Reordenamento de Entregas**. O algoritmo avalia alterações manuais feitas pelo operador na fila de pedidos em relação à ordenação ideal de prazos (*Earliest Deadline First - EDF*), calculando instantaneamente o número de inversões, o score de eficiência e a classificação de risco de atraso em tempo ótimo $O(n \log n)$.
+2. **Closest Pair of Points (Par de Pontos Mais Próximos):** Adaptado como **Localizador de Entregas Gêmeas**. O algoritmo processa as coordenadas geográficas (latitude e longitude) de todos os pedidos selecionados e encontra em $O(n \log n)$ o par de clientes fisicamente mais próximos entre si, viabilizando o agrupamento de pedidos vizinhos para otimizar tempo e combustível.
 
-Os algoritmos de caminho mínimo desenvolvidos na entrega anterior, como **Dijkstra** e **Bellman-Ford**, continuam sendo utilizados como suporte para obtenção das rotas. A partir dessas rotas, os algoritmos gulosos tomam suas decisões de agendamento ou seleção de pontos de parada.
+Como suporte e continuidade do ecossistema:
+- **Scheduling to Minimize Lateness (EDF):** Define a sequência ótima de referência com base nos prazos limites;
+- **Selecting Breakpoints (Algoritmo do Caminhoneiro):** Identifica paradas necessárias para recarga conforme a autonomia do veículo;
+- **Dijkstra** e **Bellman-Ford:** Motores de caminho mínimo para traçado contínuo da malha viária e cálculo de distâncias.
 
 ---
 
@@ -29,37 +32,49 @@ Os algoritmos de caminho mínimo desenvolvidos na entrega anterior, como **Dijks
 
 *Figura 1: Tela inicial da plataforma Stock.io.*
 
-![Mapa Minimize Lateness](assets/1.1-mapa_minimize.PNG)
+![Mapa da Cadeia de Entregas](assets/1.1-mapa_minimize.PNG)
 
-*Figura 2: Calendário de entregas com lote de pedidos organizado pelo Minimize Lateness e rota contínua entre os clientes.*
+*Figura 2: Calendário de entregas com lote de pedidos e traçado contínuo da cadeia de entregas.*
 
-![Timeline Minimize Lateness](assets/1.2-mapa_minimize.PNG)
+![Timeline de Entregas](assets/1.2-mapa_minimize.PNG)
 
 *Figura 3: Timeline detalhada da fila de entregas, exibindo deslocamento, horário previsto de chegada e deadline de cada pedido.*
 
+![Rota Perfeita - 0 inversões](assets/8-count_inversions_rota_perfeita.png)
+
+*Figura 4: Fila Manual com Rota Perfeita — 0 / 3 inversões, Score de Eficiência de 100% (sequência idêntica à ordem ótima EDF).*
+
+![Baixo Risco - 1 inversão](assets/9-count_inversions_baixo_risco.png)
+
+*Figura 5: Fila Manual com Baixo Risco de Atraso — 1 / 3 inversões, Score de Eficiência de 66.7% após reordenação manual pelo operador.*
+
+![Alto Risco - 3 inversões](assets/10-count_inversions_alto_risco.png)
+
+*Figura 6: Fila Manual com Alto Risco de Atraso — 3 / 3 inversões, Score de Eficiência de 0% (ordem totalmente invertida em relação aos deadlines).*
+
 ![Mapa Algoritmo do Caminhoneiro](assets/2-mapa_caminhoneiro.PNG)
 
-*Figura 4: Rota individual com os pontos de recarga selecionados pelo algoritmo Selecting Breakpoints.*
+*Figura 7: Rota individual com os pontos de recarga selecionados pelo algoritmo Selecting Breakpoints.*
 
 ![Implementação Minimize Lateness](assets/3-minimize.PNG)
 
-*Figura 5: Implementação da regra gulosa Earliest Deadline First utilizada pelo Minimize Lateness.*
+*Figura 8: Implementação da regra gulosa Earliest Deadline First utilizada como referência para a ordenação ideal.*
 
 ![Cálculo Minimize Lateness](assets/4-minimize.PNG)
 
-*Figura 6: Cálculo do cronograma, horários de chegada e atrasos dos pedidos.*
+*Figura 9: Cálculo do cronograma, horários de chegada e atrasos dos pedidos.*
 
 ![Implementação Selecting Breakpoints](assets/5-caminhoneiro.PNG)
 
-*Figura 7: Estrutura inicial da implementação do Selecting Breakpoints e validação da autonomia do veículo.*
+*Figura 10: Estrutura inicial da implementação do Selecting Breakpoints e validação da autonomia do veículo.*
 
 ![Execução Selecting Breakpoints](assets/6-caminhoneiro.PNG)
 
-*Figura 8: Percurso da rota e verificação dos trechos realizada pelo Algoritmo do Caminhoneiro.*
+*Figura 11: Percurso da rota e verificação dos trechos realizada pelo Algoritmo do Caminhoneiro.*
 
 ![Servidores em execução](assets/7-terminal.PNG)
 
-*Figura 9: Frontend e backend em execução.*
+*Figura 12: Frontend e backend em execução.*
 
 ---
 
@@ -72,7 +87,7 @@ O projeto está dividido em duas partes principais:
 - **Framework:** Next.js com React
 - **Linguagem:** TypeScript
 - **Estilização:** TailwindCSS
-- **Mapas:** Leaflet
+- **Mapas:** Leaflet / React-Leaflet
 - **Geocodificação:** ViaCEP + OpenStreetMap/Nominatim
 - **Malha viária:** OpenStreetMap / Overpass API
 
@@ -82,231 +97,178 @@ O projeto está dividido em duas partes principais:
 - **Linguagem:** Python 3.11+
 - **ORM:** Prisma
 - **Banco de Dados:** PostgreSQL / Supabase
-- **Algoritmos:** Minimize Lateness, Selecting Breakpoints, Dijkstra e Bellman-Ford
+- **Algoritmos Implementados:**
+  - **Dividir e Conquistar:**
+    - `Counting Inversions` (baseado em Merge Sort recursivo)
+    - `Closest Pair of Points` (busca em 2D com faixa $2\delta$ e Haversine)
+  - **Algoritmos Gulosos:** Scheduling to Minimize Lateness (EDF) e Selecting Breakpoints
+  - **Grafos / Menor Caminho:** Dijkstra e Bellman-Ford
 
 ---
 
-## Funcionalidades e Algoritmos
+## Funcionalidades e Algoritmos de Dividir e Conquistar
 
-### 1. Minimize Lateness
+### 1. Counting Inversions (Avaliador de Rota Manual)
 
-O primeiro algoritmo guloso implementado foi o **Scheduling to Minimize Lateness**, utilizado no contexto de múltiplas entregas.
+No contexto do **Calendário de Entregas & Agenda de Lotes**, o operador logístico pode reordenar manualmente os pedidos da fila (por conveniência de trânsito, preferência do motorista ou agrupamento de bairros). Contudo, cada inversão em relação à ordem ideal EDF (*Earliest Deadline First*) pode aumentar o risco de pedidos estourarem o prazo.
 
-O objetivo é organizar a fila de pedidos de forma que o maior atraso entre todas as entregas seja o menor possível.
+Para avaliar o impacto dessa reorganização sem impor uma trava rígida, foi implementado o algoritmo de **Contagem de Inversões por Dividir e Conquistar** em [`backend/app/algoritmos/count_inversions.py`](backend/app/algoritmos/count_inversions.py).
 
-#### Regra Gulosa
+#### Fundamentação Teórica
 
-Foi utilizada a estratégia **Earliest Deadline First (EDF)**.
-
-Os pedidos são ordenados de forma crescente pelo prazo de entrega:
+Dada uma permutação $A = [a_1, a_2, \dots, a_n]$, um par de índices $(i, j)$ constitui uma **inversão** se:
 
 $$
-d_1 \leq d_2 \leq \dots \leq d_n
+i < j \quad \text{e} \quad a_i > a_j
 $$
 
-Assim, o pedido cujo prazo termina primeiro é atendido primeiro.
+Uma abordagem ingênua por força bruta compara todos os pares em tempo $O(n^2)$. Aplicando a estratégia de **Dividir e Conquistar** baseada no **Merge Sort**, resolvemos o problema em tempo ótimo $O(n \log n)$:
 
-A escolha é feita independentemente da duração individual do deslocamento, priorizando sempre o deadline mais próximo.
-
-#### Cálculo do atraso
-
-Para cada pedido:
-
-- $t_i$: tempo necessário para deslocamento/atendimento;
-- $d_i$: prazo limite da entrega;
-- $f_i$: instante de término da entrega;
-- $l_i$: atraso da entrega.
-
-O atraso individual é calculado por:
+1. **Dividir:** A lista de posições relativas é particionada em duas metades: $\text{esquerda} = A[0 \dots \lfloor n/2 \rfloor - 1]$ e $\text{direita} = A[\lfloor n/2 \rfloor \dots n - 1]$;
+2. **Conquistar:** Recursivamente conta o número de inversões contidas inteiramente na metade esquerda e na metade direita;
+3. **Combinar (Merge):** Durante o processo de intercalação ordenada entre as metades esquerda e direita, sempre que um elemento da metade direita for menor que o elemento da metade esquerda, identifica-se que **todos os elementos restantes da metade esquerda** são estritamente maiores que ele. Portanto, acumula-se:
 
 $$
-l_i = \max(0, f_i - d_i)
+\text{inversões} \mathrel{+}= \text{meio} - \text{esquerda}
 $$
 
-E o atraso máximo do lote é:
+#### Recorrência e Complexidade
+
+A relação de recorrência do algoritmo é expressa por:
 
 $$
-L_{\max} = \max_i l_i
+T(n) = 2T(n/2) + O(n)
 $$
 
-A estratégia EDF minimiza o valor de $L_{\max}$.
-
-#### Complexidade
-
-A principal operação é a ordenação dos pedidos por deadline:
+Pelo Caso 2 do **Teorema Mestre**:
 
 $$
-O(n \log n)
+T(n) = \Theta(n \log n)
 $$
 
-Após a ordenação, o cálculo do cronograma percorre os pedidos linearmente.
+- **Complexidade de Tempo:** $O(n \log n)$
+- **Complexidade de Espaço:** $O(n)$ (buffers de ordenação auxiliar)
+
+#### Regra de Negócio e Heurística de Risco
+
+1. Os pedidos do lote são mapeados para suas posições de referência na fila ideal EDF $\{order\_id \mapsto position\}$;
+2. A fila manual é traduzida na lista dessas posições e submetida a `count_inversions(values)`;
+3. O número máximo possível de inversões para um lote de $n$ pedidos é dado por:
+
+$$
+\text{Máximo de Inversões} = \binom{n}{2} = \frac{n(n - 1)}{2}
+$$
+
+4. O **Score de Eficiência** é calculado por:
+
+$$
+\text{Score} = 100 \times \left(1 - \frac{\text{inversões}}{\text{máximo}}\right)
+$$
+
+5. Classificação do Nível de Risco:
+   - **Rota Perfeita:** $0$ inversões (Score = $100\%$);
+   - **Baixo Risco:** $\text{inversões} \leq \frac{1}{3} \times \text{máximo}$;
+   - **Risco Moderado:** $\frac{1}{3} \times \text{máximo} < \text{inversões} \leq \frac{2}{3} \times \text{máximo}$;
+   - **Alto Risco:** $\text{inversões} > \frac{2}{3} \times \text{máximo}$.
+
+6. O botão **Restaurar Fila Ideal** na interface restaura instantaneamente a ordem EDF ótima.
 
 ---
 
-### 2. Rota Contínua do Lote
+### 2. Closest Pair of Points (Localizador de Entregas Gêmeas)
 
-Depois da ordenação produzida pelo Minimize Lateness, os pedidos são conectados seguindo exatamente a sequência definida pelo algoritmo:
+O segundo algoritmo de Dividir e Conquistar implementado foi o **Closest Pair of Points (Par de Pontos Mais Próximos)** em [`backend/app/algoritmos/closest_pair.py`](backend/app/algoritmos/closest_pair.py).
 
-$$
-\text{Origem}
-\rightarrow
-\text{Cliente 1}
-\rightarrow
-\text{Cliente 2}
-\rightarrow
-\dots
-\rightarrow
-\text{Cliente N}
-$$
+#### Aplicação Prática
 
-Para cada trecho consecutivo, é utilizado um algoritmo de menor caminho, como **Dijkstra** ou **Bellman-Ford**.
+Em operações de entrega expressa, identificar clientes geograficamente contíguos permite despachar ambos com o mesmo veículo ou realizar entregas em sequência imediata (*drop-offs geminados*), reduzindo substancialmente a quilometragem rodada e a emissão de poluentes.
 
-O sistema calcula:
+A funcionalidade **Entregas Gêmeas** analisa a latitude e longitude dos pedidos selecionados e identifica o par de entregas com menor distância física entre si.
 
-- distância de cada trecho;
-- tempo estimado de deslocamento;
-- horário previsto de chegada;
-- deadline;
-- atraso individual;
-- atraso máximo do lote.
+#### Fundamentação Teórica
 
-A sequência também é representada visualmente no mapa por uma rota contínua e marcadores numerados.
+Dado um conjunto $P = \{p_1, p_2, \dots, p_n\}$ de pontos no plano $2D$, queremos encontrar o par $(p_i, p_j)$ que minimiza a distância $d(p_i, p_j)$. A abordagem por força bruta exige verificar $\binom{n}{2}$ pares em tempo $O(n^2)$.
 
----
+Com **Dividir e Conquistar**, a busca é realizada em tempo $O(n \log n)$:
 
-### 3. Selecting Breakpoints - Algoritmo do Caminhoneiro
-
-O segundo algoritmo guloso implementado foi o **Selecting Breakpoints**, adaptado para o problema de autonomia de veículos durante uma entrega individual.
-
-Nesse cenário, primeiro é calculada uma rota entre a origem e o destino. O algoritmo recebe:
-
-- o caminho já calculado;
-- as distâncias entre os nós do caminho;
-- a autonomia máxima do veículo.
-
-A partir dessas informações, o objetivo é selecionar os pontos em que o veículo deverá realizar uma recarga.
-
-#### Regra Gulosa
-
-A decisão adotada é:
-
-> **Percorrer a maior distância possível antes de realizar uma nova parada.**
-
-Durante o percurso, o algoritmo acumula a distância percorrida desde a última recarga.
-
-Antes de avançar para o próximo trecho, é verificado se:
+1. **Pré-processamento / Ordenação:** Ordena-se os pontos inicialmente pela coordenada $X$ (longitude);
+2. **Dividir:** Traça-se uma linha divisória vertical $L$ na mediana das coordenadas $X$, dividindo o conjunto de pontos em duas metades: $Q$ (esquerda) e $R$ (direita);
+3. **Conquistar:** Calcula-se recursivamente o par mais próximo em $Q$ ($\delta_1$) e em $R$ ($\delta_2$). Define-se a menor distância preliminar como:
 
 $$
-distância\_acumulada + próxima\_aresta > autonomia
+\delta = \min(\delta_1, \delta_2)
 $$
 
-Caso a condição seja verdadeira, o nó atual é selecionado como um **breakpoint**.
+4. **Combinar:** Um par mais próximo pode ter um ponto na metade esquerda e outro na metade direita. Esse par só pode existir dentro de uma **faixa vertical central de largura $2\delta$** centrada na linha $L$, isto é:
 
-Esse nó representa o último ponto alcançável antes de ultrapassar a capacidade disponível.
+$$
+\text{faixa} = \{p \in P \mid |p.x - L.x| < \delta\}
+$$
 
-Após a recarga, a distância acumulada é reiniciada e o algoritmo continua percorrendo a rota.
+   - Os pontos das duas metades já chegam ordenados por $Y$ graças à intercalação (*merge*) em $O(n)$;
+   - Para cada ponto na faixa ordenado por $Y$, **basta inspecionar no máximo os próximos 7 a 8 pontos subsequentes** na lista vertical. Essa propriedade geométrica é garantida pelo fato de que nenhum ponto da mesma metade pode estar a menos de $\delta$ de distância (princípio da casa dos pombos em caixas $\delta/2 \times \delta/2$);
+   - Se for encontrada alguma distância $d(p_i, p_j) < \delta$, o par ótimo global é atualizado.
 
-#### Exemplo
+#### Medição de Distância (Euclidiana vs. Haversine)
 
-Considerando:
+- Durante a execução geométrica de Dividir e Conquistar no plano $2D$, é utilizada a **distância Euclidiana** sobre as coordenadas projetadas para a poda em $O(n \log n)$;
+- Ao determinar o par ótimo final, o sistema calcula a distância real sobre a curvatura terrestre utilizando a **Fórmula de Haversine** (em metros e quilômetros):
 
-```text
-Autonomia do veículo: 2 km
+$$
+a = \sin^2\left(\frac{\Delta \phi}{2}\right) + \cos(\phi_1)\cos(\phi_2)\sin^2\left(\frac{\Delta \lambda}{2}\right)
+$$
 
-Origem ---- Nó A ---- Nó B ---- Nó C ---- Destino
-```
+$$
+d = 2 R \cdot \operatorname{atan2}\left(\sqrt{a}, \sqrt{1 - a}\right)
+$$
 
-O algoritmo tenta avançar continuamente enquanto a autonomia permite.
+#### Logs no Terminal (Rastreamento Didático)
 
-Quando percebe que não consegue alcançar o próximo trecho sem ultrapassar os 2 km disponíveis, seleciona o nó atual como ponto de recarga.
-
-Assim:
-
-```text
-Origem ---- Nó A ---- 🔋 ---- Nó C ---- 🔋 ---- Destino
-```
-
-#### Condição sem solução
-
-Também é verificado se uma única aresta possui distância maior que toda a autonomia do veículo.
-
-Por exemplo:
+O backend imprime detalhadamente no terminal cada etapa da recursão, evidenciando o funcionamento do algoritmo:
 
 ```text
-Autonomia: 2 km
-Trecho entre dois nós: 3 km
+------ CLOSEST PAIR OF POINTS (DIVIDIR E CONQUISTAR) ------
+Total de pontos analisados: 5
+Ordenacao inicial por X (Longitude): #103 (-47.8921) -> #104 (-47.8895) -> #105 (-47.8820) ...
+-----------------------------------------------------------
+[DIVISAO - RAIZ] n=5 [#103, #104, #105, #106, #107] | Linha L (X = -47.88575)
+  [CASO BASE - ESQ] Pontos: ['#103', '#104'] | Par: (#103, #104) | delta = 0.002600
+  [CASO BASE - DIR] Pontos: ['#105', '#106', '#107'] | Par: (#105, #106) | delta = 0.001950
+[COMBINACAO - RAIZ] Faixa (2*delta): ['#104', '#105'] | Menor par: (#104, #105) (delta = 0.001820) [Atualizado na faixa]
+-----------------------------------------------------------
+Par mais proximo encontrado: Pedido #104 e Pedido #105
+Distancia Real (Haversine):  214.35 m (0.214 km)
+Comparacoes realizadas:      7
+-----------------------------------------------------------
 ```
-
-Nesse caso, mesmo iniciando o trecho com carga completa, o veículo não conseguiria alcançar o próximo nó.
-
-O algoritmo então retorna:
-
-```text
-No solution
-```
-
-#### Resultado
-
-Ao final da execução são retornados:
-
-- possibilidade de completar a rota;
-- lista dos breakpoints escolhidos;
-- quantidade de paradas necessárias;
-- distância total da rota;
-- autonomia utilizada.
-
-Os breakpoints retornados são identificadores dos nós do grafo. A interface utiliza esses identificadores para recuperar suas coordenadas e posicionar os marcadores de bateria no mapa.
-
-Além da visualização no mapa, o backend registra no terminal informações como:
-
-```text
-SELECTING BREAKPOINTS
-
-Veículo selecionado: moto
-Autonomia: 12.00 km
-Distância da rota: 52.98 km
-Paradas necessárias: 4
-Breakpoints selecionados: [...]
-```
-
-Isso permite acompanhar diretamente a entrada utilizada pelo algoritmo e o resultado da decisão gulosa.
 
 ---
 
 ## Comparativo Teórico de Estratégias
 
-### Minimize Lateness
-
-Para demonstrar o comportamento da estratégia gulosa, o sistema permite comparar o **Earliest Deadline First** com outras formas de organização.
-
-| Estratégia | Regra de Ordenação | Atraso Máximo | Optimalidade |
-| :--- | :--- | :--- | :--- |
-| **Minimize Lateness (EDF)** | Menor deadline primeiro | **Mínimo possível** | **Ótima** |
-| **FIFO** | Ordem de chegada/criação | Pode produzir atrasos maiores | Não garante optimalidade |
-| **SPT** | Menor tempo de processamento primeiro | Pode adiar pedidos urgentes | Não garante optimalidade |
-
-O EDF prioriza sempre o pedido cujo prazo termina primeiro, sendo a estratégia adequada para minimizar o atraso máximo.
-
-### Selecting Breakpoints
-
-No Selecting Breakpoints, a escolha gulosa consiste em selecionar sempre o **ponto mais distante que ainda pode ser alcançado com a autonomia disponível**.
-
-Em uma rota fixa, considerando os nós da rota como possíveis pontos de recarga, essa decisão evita paradas antecipadas desnecessárias e reduz a quantidade de paradas necessárias durante o percurso.
+| Algoritmo | Paradigma | Complexidade de Tempo | Complexidade de Espaço | Aplicação no Stock.io |
+| :--- | :--- | :--- | :--- | :--- |
+| **Count Inversions** | **Dividir e Conquistar** | **$O(n \log n)$** | **$O(n)$** | **Avalia desvio da fila manual frente à ordem EDF ideal e calcula risco de atraso** |
+| **Closest Pair of Points** | **Dividir e Conquistar** | **$O(n \log n)$** | **$O(n)$** | **Encontra par de entregas fisicamente mais próximas para despacho conjunto** |
+| **Minimize Lateness** | Algoritmo Ambicioso (Greed) | $O(n \log n)$ | $O(n)$ | Ordena a fila de referência minimizando o atraso máximo ($L_{\max}$) |
+| **Selecting Breakpoints** | Algoritmo Ambicioso (Greed) | $O(n)$ | $O(1)$ | Determina pontos de recarga em rota individual com veículo elétrico |
+| **Dijkstra** | Algoritmo Ambicioso / Grafos | $O((V + E) \log V)$ | $O(V)$ | Traçado viário de menor caminho entre pontos consecutivos |
+| **Bellman-Ford** | Programação Dinâmica / Grafos | $O(V \cdot E)$ | $O(V)$ | Menor caminho viário com suporte a custos diferenciados |
 
 ---
 
-## Instalação
+## Instalação e Execução
 
 ### 1. Clonando o repositório
 
 ```bash
-git clone https://github.com/projeto-de-algoritmos-2026/G7_Greed_PA-26.2.git
-cd G7_Greed_PA-26.2
+git clone https://github.com/projeto-de-algoritmos-2026/G7_Dividir_e_Conquistar_PA-26.2.git
+cd G7_Dividir_e_Conquistar_PA-26.2
 ```
 
-### 2. Configurando o Backend
+### 2. Configurando o Backend (FastAPI)
 
-Abra um terminal e navegue até a pasta `backend`:
+Navegue até a pasta `backend`:
 
 ```bash
 cd backend
@@ -314,131 +276,95 @@ cd backend
 
 #### Crie e ative o ambiente virtual
 
-Windows:
-
-```bash
+**Windows (PowerShell):**
+```powershell
 python -m venv venv
-.\venv\Scripts\activate
+.\venv\Scripts\Activate.ps1
 ```
 
-Linux/Mac:
-
+**Linux/Mac:**
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-#### Instale as dependências
+#### Instale as dependências e gere o cliente do Prisma
 
 ```bash
 pip install -r requirements.txt
-```
-
-#### Configure o Prisma
-
-```bash
-prisma py fetch
 prisma generate
-prisma db push
 ```
 
-#### Inicie o backend
+#### Inicie o servidor do Backend
 
 ```bash
-python -m uvicorn app.main:app --reload --port 8000
+uvicorn app.main:app --reload --port 8000
 ```
 
-A API estará disponível em:
+- API Base: [http://localhost:8000](http://localhost:8000)
+- Swagger Interativo: [http://localhost:8000/docs](http://localhost:8000/docs)
 
-```text
-http://localhost:8000
+#### Executando a Suíte de Testes Automatizados
+
+Para validar o algoritmo **Count Inversions** e os endpoints:
+
+```bash
+python -m unittest discover -s tests -v
 ```
 
-A documentação interativa poderá ser acessada em:
+---
 
-```text
-http://localhost:8000/docs
-```
-
-### 3. Configurando o Frontend
+### 3. Configurando o Frontend (Next.js)
 
 Abra outro terminal e navegue até a pasta `frontend`:
 
 ```bash
 cd frontend
-```
-
-Instale as dependências:
-
-```bash
 npm install
-```
-
-Inicie o servidor:
-
-```bash
 npm run dev
 ```
 
-A aplicação estará disponível em:
-
-```text
-http://localhost:3000
-```
+A aplicação estará disponível em [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## Uso
+## Uso do Sistema
 
-### Credenciais de Acesso para Testes
+### Credenciais de Teste
 
-#### Cliente
-
-- **Email:** mauricio@gmail.com
-- **Senha:** mauricio123@
-
-#### Entregador
-
-- **Email:** mauricioentregador@gmail.com
-- **Senha:** mauricio123@
+- **Entregador:** `mauricioentregador@gmail.com` | **Senha:** `mauricio123@`
+- **Cliente:** `mauricio@gmail.com` | **Senha:** `mauricio123@`
 
 ---
 
-### Minimize Lateness
+### Como Testar os Algoritmos no Sistema Web
 
-1. Faça login como **entregador**.
-2. Acesse o **Calendário de Entregas & Agenda de Lotes**.
-3. Informe o CEP de origem.
-4. Selecione o meio de transporte.
-5. Selecione os pedidos que deverão fazer parte do lote.
-6. Defina ou altere os deadlines dos pedidos, caso desejado.
-7. Clique em **Organizar Fila (Minimize Lateness)**.
-8. O sistema irá ordenar os pedidos pela regra EDF.
-9. A rota contínua será traçada no mapa seguindo a ordem calculada.
-10. A timeline exibirá os horários previstos, deadlines e possíveis atrasos.
+1. Faça login na plataforma como **entregador**.
+2. Acesse a tela **Calendário de Entregas & Agenda de Lotes** (`/delivery/batchOrder`).
+3. Selecione os pedidos para compor o lote e clique em **Otimizar Agenda** para gerar o traçado contínuo e a fila ideal inicial via Minimize Lateness (EDF).
 
-Também é possível acessar o comparativo entre a estratégia gulosa e outras estratégias de ordenação.
+#### Testando o Count Inversions (Fila Manual)
+- Observe o card **Fila Manual**: inicialmente o score é de **100%** (**0 / N inversões**, badge **Rota Perfeita**).
+- Clique nas setas $\uparrow$ e $\downarrow$ ao lado de qualquer pedido para alterar sua ordem.
+- O sistema dispara imediatamente o endpoint `/api/schedule/count-inversions`, recalculando em tempo real:
+  - O número de inversões ($k / \text{máximo}$);
+  - O Score de Eficiência percentual;
+  - A classificação de risco (**Baixo Risco**, **Risco Moderado** ou **Alto Risco**);
+  - A rota contínua no mapa Leaflet e a quilometragem total.
+- Clique em **Restaurar Fila Ideal** para restabelecer a ordem ótima.
 
----
-
-### Selecting Breakpoints
-
-1. Faça login como **entregador**.
-2. Acesse a lista de pedidos.
-3. Escolha uma **entrega individual**.
-4. Informe o CEP de origem.
-5. Escolha o meio de transporte.
-6. Escolha o algoritmo de rota entre **Dijkstra** e **Bellman-Ford**.
-7. Clique em **Calcular Rota**.
-8. O sistema calcula inicialmente o caminho entre origem e destino.
-9. O Selecting Breakpoints analisa o caminho utilizando a autonomia definida para o veículo.
-10. Os pontos escolhidos para recarga são exibidos no mapa através de marcadores de bateria.
-11. A interface também informa a quantidade total de paradas para recarga.
+#### Testando o Closest Pair (Entregas Gêmeas)
+- No painel de pedidos, clique em **Buscar Entregas Gêmeas**.
+- O sistema envia as coordenadas dos pedidos para o endpoint `/api/routes/closest-pair`.
+- O algoritmo de Dividir e Conquistar identifica o par mais próximo em $O(n \log n)$, traça uma linha destacada de conexão direta entre eles no mapa e exibe uma notificação toast informando a distância exata em metros.
+- No terminal do backend, acompanhe os logs com cada divisão, caso base e análise da faixa vertical $2\delta$.
 
 ---
 
-## Outros
+## Vídeo de Apresentação
 
-### Vídeo da apresentação
+O vídeo demonstrativo com as explicações teóricas dos algoritmos de Dividir e Conquistar e o funcionamento prático na plataforma pode ser assistido no YouTube:
 
-[![Vídeo da apresentação](https://img.youtube.com/vi/GatoWrMUynk/0.jpg)](https://youtu.be/GatoWrMUynk)
+[![Vídeo da apresentação](https://img.youtube.com/vi/fEQrlEzLmXg/0.jpg)](https://youtu.be/fEQrlEzLmXg)
+
+🔗 **Link direto:** [https://youtu.be/fEQrlEzLmXg](https://youtu.be/fEQrlEzLmXg)
