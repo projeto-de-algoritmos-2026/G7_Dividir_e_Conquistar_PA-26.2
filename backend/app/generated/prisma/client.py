@@ -85,7 +85,7 @@ __all__ = (
 
 log: logging.Logger = logging.getLogger(__name__)
 
-SCHEMA_PATH = Path('C:/Projetos/G7_Greed_PA-26.2/backend/prisma/schema.prisma')
+SCHEMA_PATH = Path('C:/Projetos/G7_Dividir_e_Conquistar_PA-26.2/backend/prisma/schema.prisma')
 PACKAGED_SCHEMA_PATH = Path(__file__).parent.joinpath('schema.prisma')
 ENGINE_TYPE: EngineType = EngineType.binary
 BINARY_PATHS = model_parse(BinaryPaths, {'queryEngine': {'windows': 'C:\\Users\\sanch\\.cache\\prisma-python\\binaries\\5.17.0\\393aa359c9ad4a4bb28630fb5613f9c281cde053\\node_modules\\prisma\\query-engine-windows.exe'}, 'introspectionEngine': {}, 'migrationEngine': {}, 'libqueryEngine': {}, 'prismaFmt': {}})
@@ -151,7 +151,7 @@ class Prisma(AsyncBasePrisma):
         return {
             'name': 'db',
             'url': OptionalValueFromEnvVar(**{'value': None, 'fromEnvVar': 'DATABASE_URL'}).resolve(),
-            'source_file_path': 'C:/Projetos/G7_Greed_PA-26.2/backend/prisma/schema.prisma',
+            'source_file_path': 'C:/Projetos/G7_Dividir_e_Conquistar_PA-26.2/backend/prisma/schema.prisma',
         }
 
     async def execute_raw(self, query: LiteralString, *args: Any) -> int:
