@@ -36,45 +36,37 @@ Como suporte e continuidade do ecossistema:
 
 *Figura 2: Calendário de entregas com lote de pedidos e traçado contínuo da cadeia de entregas.*
 
-![Timeline de Entregas](assets/1.2-mapa_minimize.PNG)
+![Rota Perfeita - 0 inversões](assets/CountingInversions_mapa.jpg)
 
-*Figura 3: Timeline detalhada da fila de entregas, exibindo deslocamento, horário previsto de chegada e deadline de cada pedido.*
+*Figura 3: Fila Manual com Rota Perfeita — 0 / 3 inversões, Score de Eficiência de 100% (sequência idêntica à ordem ótima EDF).*
 
-![Rota Perfeita - 0 inversões](assets/8-count_inversions_rota_perfeita.png)
+![Baixo Risco - 1 inversão](assets/CountingInversions_mapa2.jpg)
 
-*Figura 4: Fila Manual com Rota Perfeita — 0 / 3 inversões, Score de Eficiência de 100% (sequência idêntica à ordem ótima EDF).*
+*Figura 4: Fila Manual com Baixo Risco de Atraso — 1 / 3 inversões, Score de Eficiência de 66.7% após reordenação manual pelo operador.*
 
-![Baixo Risco - 1 inversão](assets/9-count_inversions_baixo_risco.png)
+![Alto Risco - 3 inversões](assets/CountingInversions_mapa3.jpg)
 
-*Figura 5: Fila Manual com Baixo Risco de Atraso — 1 / 3 inversões, Score de Eficiência de 66.7% após reordenação manual pelo operador.*
+*Figura 5: Fila Manual com Alto Risco de Atraso — 3 / 3 inversões, Score de Eficiência de 0% (ordem totalmente invertida em relação aos deadlines).*
 
-![Alto Risco - 3 inversões](assets/10-count_inversions_alto_risco.png)
+![Implementação Counting Inversions](assets/CountingInversions_cod.PNG)
 
-*Figura 6: Fila Manual com Alto Risco de Atraso — 3 / 3 inversões, Score de Eficiência de 0% (ordem totalmente invertida em relação aos deadlines).*
+*Figura 6: Implementação do Counting Inversions com Merge Sort recursivo em O(n log n).*
 
-![Mapa Algoritmo do Caminhoneiro](assets/2-mapa_caminhoneiro.PNG)
+![Entregas Gêmeas - Closest Pair](assets/closest_pair_mapa.PNG)
 
-*Figura 7: Rota individual com os pontos de recarga selecionados pelo algoritmo Selecting Breakpoints.*
+*Figura 7: Funcionalidade Entregas Gêmeas — par de pedidos mais próximos destacado no mapa e notificação com a distância em metros.*
 
-![Implementação Minimize Lateness](assets/3-minimize.PNG)
+![Distância Euclidiana e Haversine](assets/closest_pair_euclidiandistance.PNG)
 
-*Figura 8: Implementação da regra gulosa Earliest Deadline First utilizada como referência para a ordenação ideal.*
+*Figura 8: Funções de distância Euclidiana (poda no plano 2D) e Haversine (distância real em metros).*
 
-![Cálculo Minimize Lateness](assets/4-minimize.PNG)
+![Implementação Closest Pair](assets/closest_pair_sort.PNG)
 
-*Figura 9: Cálculo do cronograma, horários de chegada e atrasos dos pedidos.*
-
-![Implementação Selecting Breakpoints](assets/5-caminhoneiro.PNG)
-
-*Figura 10: Estrutura inicial da implementação do Selecting Breakpoints e validação da autonomia do veículo.*
-
-![Execução Selecting Breakpoints](assets/6-caminhoneiro.PNG)
-
-*Figura 11: Percurso da rota e verificação dos trechos realizada pelo Algoritmo do Caminhoneiro.*
+*Figura 9: Função recursiva `sort_and_closest_pair` com caso base, divisão por X e ordenação por Y.*
 
 ![Servidores em execução](assets/7-terminal.PNG)
 
-*Figura 12: Frontend e backend em execução.*
+*Figura 10: Frontend e backend em execução.*
 
 ---
 
